@@ -42,6 +42,7 @@ before_script:
       echo "          ansible_become_pass: \"$ANSIBLE_BECOME_PASS\"" >> inventory.ci.yml
     fi
   # Настройка ansible.cfg для использования переменных окружения
+  
   - |
     cat > ansible.ci.cfg <<EOF
     [defaults]
