@@ -1,0 +1,7 @@
+services:
+  {{ nginx_compose_service_name }}:
+    image: "{{ nginx_compose_image }}"
+    container_name: "{{ nginx_compose_service_name }}"
+    restart: "{{ nginx_compose_restart }}"
+    ports:
+      - "{{ nginx_compose_host_port }}:{{ nginx_compose_container_port }}"

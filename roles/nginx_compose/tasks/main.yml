@@ -1,0 +1,44 @@
+---
+- name: Preflight | Ensure docker is available
+  ansible.builtin.command: docker version
+  changed_when: false
+  failed_when: false
+  register: docker_version_check
+
+- name: Preflight | Fail if docker is not available
+  ansible.builtin.fail:
+    msg: "Docker is not installed or not accessible. Please run docker_engine role first."
+  when: docker_version_check.rc != 0
+
+- name: Preflight | Ensure docker compose v2 is available
+  ansible.builtin.command: docker compose version
+  changed_when: false
+  failed_when: false
+  register: docker_compose_version_check
+
+- name: Preflight | Fail if docker compose is not available
+  ansible.builtin.fail:
+    msg: "Docker Compose v2 is not installed or not accessible. Please run docker_engine role first."
+  when: docker_compose_version_check.rc != 0
+
+- name: Ensure project dir exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ nginx_compose_project_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Render docker-compose.yml
+  become: true
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ nginx_compose_project_dir }}/docker-compose.yml"
+    mode: "0644"
+  notify: Restart nginx compose stack
+
+- name: Deploy nginx via compose v2
+  become: true
+  community.docker.docker_compose_v2:
+    project_src: "{{ nginx_compose_project_dir }}"
+    project_name: "{{ nginx_compose_project_name }}"
+    state: present

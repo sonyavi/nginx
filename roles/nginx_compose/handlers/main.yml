@@ -1,0 +1,7 @@
+---
+- name: Restart nginx compose stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ nginx_compose_project_dir }}"
+    project_name: "{{ nginx_compose_project_name }}"
+    state: present
+    recreate: auto

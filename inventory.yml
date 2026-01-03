@@ -1,0 +1,9 @@
+---
+all:
+  hosts:
+    vm-nginx:
+      ansible_host: 192.168.64.8
+      ansible_user: sonyavi
+      ansible_ssh_pass: "!713Wh3u"
+      ansible_become_pass: "!713Wh3u"
+

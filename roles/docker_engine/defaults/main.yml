@@ -1,0 +1,7 @@
+---
+docker_engine_enable_service: true
+docker_engine_start_service: true
+
+# Если хочешь добавлять пользователя в группу docker (чтобы без sudo):
+docker_engine_manage_docker_group: false
+docker_engine_docker_users: []

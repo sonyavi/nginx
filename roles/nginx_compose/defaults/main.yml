@@ -1,0 +1,11 @@
+---
+nginx_compose_project_dir: /opt/nginx-compose
+nginx_compose_project_name: nginx_stack
+
+nginx_compose_service_name: nginx
+nginx_compose_image: "nginx:stable-alpine"
+
+nginx_compose_host_port: 80
+nginx_compose_container_port: 80
+
+nginx_compose_restart: "unless-stopped"

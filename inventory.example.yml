@@ -1,0 +1,26 @@
+---
+# Пример inventory для виртуальной машины
+# Скопируйте этот файл в inventory.yml и обновите параметры
+
+all:
+  hosts:
+    # Вариант 1: Подключение по IP с паролем
+    vm-nginx:
+      ansible_host: 192.168.64.8 # IP адрес вашей виртуальной машины
+      ansible_user: sonyavi          # Пользователь на VM (ubuntu, debian, root и т.д.)
+      ansible_ssh_pass: !713Wh3u    # Пароль для SSH (не рекомендуется, лучше использовать ключ)
+      ansible_become_pass: !713Wh3u  # Пароль для sudo
+    
+    # Вариант 2: Подключение по IP с SSH ключом (рекомендуется)
+    # vm-nginx:
+    #   ansible_host: 192.168.1.100
+    #   ansible_user: ubuntu
+    #   ansible_ssh_private_key_file: ~/.ssh/id_rsa
+    #   ansible_become: true
+    
+    # Вариант 3: Подключение по hostname
+    # vm-nginx:
+    #   ansible_host: nginx-server.local
+    #   ansible_user: ubuntu
+    #   ansible_ssh_private_key_file: ~/.ssh/id_rsa
+
