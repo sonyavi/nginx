@@ -19,7 +19,7 @@ if [ -z "$ANSIBLE_HOST" ] || [ -z "$ANSIBLE_USER" ]; then
     exit 1
 fi
 
-# Создание inventory файла
+# Создание inventory файла #
 {
     echo "---"
     echo "all:"
