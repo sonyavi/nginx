@@ -23,24 +23,22 @@ before_script:
     fi
   # Создание inventory из переменных окружения
   - |
-    cat > inventory.ci.yml <<EOF
-    ---
-    all:
-      hosts:
-        ${ANSIBLE_HOST_NAME:-vm-nginx}:
-          ansible_host: $ANSIBLE_HOST
-          ansible_user: ${ANSIBLE_USER:-ubuntu}
-    EOF
-  - |
-    if [ -n "$SSH_PRIVATE_KEY" ]; then
-      echo "          ansible_ssh_private_key_file: ~/.ssh/id_rsa" >> inventory.ci.yml
-    elif [ -n "$ANSIBLE_SSH_PASS" ]; then
-      echo "          ansible_ssh_pass: \"$ANSIBLE_SSH_PASS\"" >> inventory.ci.yml
-    fi
-  - |
-    if [ -n "$ANSIBLE_BECOME_PASS" ]; then
-      echo "          ansible_become_pass: \"$ANSIBLE_BECOME_PASS\"" >> inventory.ci.yml
-    fi
+    {
+      echo "---"
+      echo "all:"
+      echo "  hosts:"
+      echo "    ${ANSIBLE_HOST_NAME:-vm-nginx}:"
+      echo "      ansible_host: $ANSIBLE_HOST"
+      echo "      ansible_user: ${ANSIBLE_USER:-ubuntu}"
+      if [ -n "$SSH_PRIVATE_KEY" ]; then
+        echo "      ansible_ssh_private_key_file: ~/.ssh/id_rsa"
+      elif [ -n "$ANSIBLE_SSH_PASS" ]; then
+        echo "      ansible_ssh_pass: \"$ANSIBLE_SSH_PASS\""
+      fi
+      if [ -n "$ANSIBLE_BECOME_PASS" ]; then
+        echo "      ansible_become_pass: \"$ANSIBLE_BECOME_PASS\""
+      fi
+    } > inventory.ci.yml
   # Настройка ansible.cfg для использования переменных окружения
   
   - |
