@@ -1,0 +1,13 @@
+---
+# Пример inventory файла БЕЗ паролей
+# Скопируйте этот файл в inventory.yml и используйте generate-inventory.sh
+# для добавления паролей из переменных окружения
+
+all:
+  hosts:
+    vm-nginx:
+      ansible_host: 91.108.243.32
+      ansible_user: root
+      # Пароли добавляются автоматически через generate-inventory.sh
+      # из переменных окружения ANSIBLE_SSH_PASS и ANSIBLE_BECOME_PASS
+

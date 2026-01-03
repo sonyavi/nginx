@@ -1,9 +1,25 @@
 ---
+# ⚠️ ВНИМАНИЕ: Этот файл не должен содержать пароли!
+# Используйте generate-inventory.sh для создания inventory.yml из переменных окружения
+#
+# Быстрый старт:
+#   export ANSIBLE_HOST=91.108.243.32
+#   export ANSIBLE_USER=root
+#   export ANSIBLE_SSH_PASS="your_password"
+#   export ANSIBLE_BECOME_PASS="your_password"
+#   ./generate-inventory.sh
+#
+# Или используйте SSH ключ:
+#   export ANSIBLE_HOST=91.108.243.32
+#   export ANSIBLE_USER=root
+#   export SSH_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)"
+#   ./generate-inventory.sh
+
 all:
   hosts:
     vm-nginx:
-      ansible_host: 192.168.64.8
-      ansible_user: sonyavi
-      ansible_ssh_pass: "!713Wh3u"
-      ansible_become_pass: "!713Wh3u"
-
+      ansible_host: 91.108.243.32
+      ansible_user: root
+      # Пароли добавляются через generate-inventory.sh из переменных окружения
+      # ansible_ssh_pass: "${ANSIBLE_SSH_PASS}"
+      # ansible_become_pass: "${ANSIBLE_BECOME_PASS}"

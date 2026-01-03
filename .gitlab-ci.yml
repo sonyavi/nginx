@@ -1,116 +1,116 @@
-stages:
-  - validate
-  - deploy
+  stages:
+    - validate
+    - deploy
 
-variables:
-  ANSIBLE_HOST_KEY_CHECKING: "False"
-  ANSIBLE_FORCE_COLOR: "true"
+  variables:
+    ANSIBLE_HOST_KEY_CHECKING: "False"
+    ANSIBLE_FORCE_COLOR: "true"
 
-# Образ с Ansible
-image: python:3.12
+  # Образ с Ansible
+  image: python:3.12-slim
 
-before_script:
-  - apt-get update -qq && apt-get install -y -qq openssh-client ansible
-  - ansible-galaxy collection install -r requirements.yml
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  # Настройка SSH ключа из переменной GitLab CI/CD
-  - |
-    if [ -n "$SSH_PRIVATE_KEY" ]; then
-      echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-      chmod 600 ~/.ssh/id_rsa
-      ssh-keyscan -H $ANSIBLE_HOST >> ~/.ssh/known_hosts 2>/dev/null || true
-    fi
-  # Создание inventory из переменных окружения
-  - |
-    {
-      echo "---"
-      echo "all:"
-      echo "  hosts:"
-      echo "    ${ANSIBLE_HOST_NAME:-vm-nginx}:"
-      echo "      ansible_host: $ANSIBLE_HOST"
-      echo "      ansible_user: ${ANSIBLE_USER:-ubuntu}"
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq openssh-client ansible
+    - ansible-galaxy collection install -r requirements.yml
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    # Настройка SSH ключа из переменной GitLab CI/CD
+    - |
       if [ -n "$SSH_PRIVATE_KEY" ]; then
-        echo "      ansible_ssh_private_key_file: ~/.ssh/id_rsa"
-      elif [ -n "$ANSIBLE_SSH_PASS" ]; then
-        echo "      ansible_ssh_pass: \"$ANSIBLE_SSH_PASS\""
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H $ANSIBLE_HOST >> ~/.ssh/known_hosts 2>/dev/null || true
       fi
-      if [ -n "$ANSIBLE_BECOME_PASS" ]; then
-        echo "      ansible_become_pass: \"$ANSIBLE_BECOME_PASS\""
-      fi
-    } > inventory.ci.yml
-  # Настройка ansible.cfg для использования переменных окружения
-  
-  - |
-    cat > ansible.ci.cfg <<EOF
-    [defaults]
-    inventory = inventory.ci.yml
-    host_key_checking = False
-    retry_files_enabled = False
-    remote_tmp = /tmp/.ansible-tmp
-    [privilege_escalation]
-    become = True
-    become_method = sudo
-    EOF
-  - export ANSIBLE_CONFIG=ansible.ci.cfg
-  - cat inventory.ci.yml
+    # Создание inventory из переменных окружения
+    - |
+      {
+        echo "---"
+        echo "all:"
+        echo "  hosts:"
+        echo "    ${ANSIBLE_HOST_NAME:-vm-nginx}:"
+        echo "      ansible_host: $ANSIBLE_HOST"
+        echo "      ansible_user: ${ANSIBLE_USER:-ubuntu}"
+        if [ -n "$SSH_PRIVATE_KEY" ]; then
+          echo "      ansible_ssh_private_key_file: ~/.ssh/id_rsa"
+        elif [ -n "$ANSIBLE_SSH_PASS" ]; then
+          echo "      ansible_ssh_pass: \"$ANSIBLE_SSH_PASS\""
+        fi
+        if [ -n "$ANSIBLE_BECOME_PASS" ]; then
+          echo "      ansible_become_pass: \"$ANSIBLE_BECOME_PASS\""
+        fi
+      } > inventory.ci.yml
+    # Настройка ansible.cfg для использования переменных окружения
+    
+    - |
+      cat > ansible.ci.cfg <<EOF
+      [defaults]
+      inventory = inventory.ci.yml
+      host_key_checking = False
+      retry_files_enabled = False
+      remote_tmp = /tmp/.ansible-tmp
+      [privilege_escalation]
+      become = True
+      become_method = sudo
+      EOF
+    - export ANSIBLE_CONFIG=ansible.ci.cfg
+    - cat inventory.ci.yml
 
-# Проверка синтаксиса
-validate:
-  stage: validate
-  script:
-    - echo "🔍 Проверка синтаксиса Ansible playbook..."
-    - ansible-playbook --syntax-check playbook.yml
-    - echo "✅ Синтаксис корректен!"
-  only:
-    - merge_requests
-    - main
-    - master
-    - develop
+  # Проверка синтаксиса
+  validate:
+    stage: validate
+    script:
+      - echo "🔍 Проверка синтаксиса Ansible playbook..."
+      - ansible-playbook --syntax-check playbook.yml
+      - echo "✅ Синтаксис корректен!"
+    only:
+      - merge_requests
+      - main
+      - master
+      - develop
 
-# Проверка подключения
-test-connection:
-  stage: validate
-  script:
-    - echo "🔍 Проверка подключения к хосту..."
-    - ansible all -m ping
-    - echo "✅ Подключение успешно!"
-  only:
-    - main
-    - master
-  when: manual
-  allow_failure: true
+  # Проверка подключения
+  test-connection:
+    stage: validate
+    script:
+      - echo "🔍 Проверка подключения к хосту..."
+      - ansible all -m ping
+      - echo "✅ Подключение успешно!"
+    only:
+      - main
+      - master
+    when: manual
+    allow_failure: true
 
-# Развертывание в staging
-deploy-staging:
-  stage: deploy
-  script:
-    - echo "🚀 Развертывание на staging окружение..."
-    - ansible-playbook playbook.yml
-    - echo "✅ Развертывание завершено!"
-    - echo "🔍 Проверка результата..."
-    - ansible all -m shell -a "docker ps | grep nginx" || true
-    - ansible all -m shell -a "curl -I http://localhost" || true
-  environment:
-    name: staging
-  only:
-    - develop
-    - staging
-  when: manual
+  # Развертывание в staging
+  deploy-staging:
+    stage: deploy
+    script:
+      - echo "🚀 Развертывание на staging окружение..."
+      - ansible-playbook playbook.yml
+      - echo "✅ Развертывание завершено!"
+      - echo "🔍 Проверка результата..."
+      - ansible all -m shell -a "docker ps | grep nginx" || true
+      - ansible all -m shell -a "curl -I http://localhost" || true
+    environment:
+      name: staging
+    only:
+      - develop
+      - staging
+    when: manual
 
-# Развертывание в production
-deploy-production:
-  stage: deploy
-  script:
-    - echo "🚀 Развертывание на production окружение..."
-    - ansible-playbook playbook.yml
-    - echo "✅ Развертывание завершено!"
-    - echo "🔍 Проверка результата..."
-    - ansible all -m shell -a "docker ps | grep nginx" || true
-    - ansible all -m shell -a "curl -I http://localhost" || true
-  environment:
-    name: production
-  only:
-    - main
-    - master
-  when: manual
+  # Развертывание в production
+  deploy-production:
+    stage: deploy
+    script:
+      - echo "🚀 Развертывание на production окружение..."
+      - ansible-playbook playbook.yml
+      - echo "✅ Развертывание завершено!"
+      - echo "🔍 Проверка результата..."
+      - ansible all -m shell -a "docker ps | grep nginx" || true
+      - ansible all -m shell -a "curl -I http://localhost" || true
+    environment:
+      name: production
+    only:
+      - main
+      - master
+    when: manual

@@ -106,11 +106,39 @@ ansible-playbook -i inventory playbook.yml \
 
 Для развертывания на виртуальной машине см. подробную инструкцию: [DEPLOY_VM.md](DEPLOY_VM.md)
 
-Быстрый старт:
+### Быстрый старт с переменными окружения (рекомендуется):
+
+1. **Установите переменные окружения:**
+   ```bash
+   export ANSIBLE_HOST=91.108.243.32
+   export ANSIBLE_USER=root
+   export ANSIBLE_SSH_PASS="your_password"
+   export ANSIBLE_BECOME_PASS="your_password"
+   ```
+
+2. **Сгенерируйте inventory.yml:**
+   ```bash
+   ./generate-inventory.sh
+   ```
+
+3. **Проверьте подключение:**
+   ```bash
+   ./check_connection.sh
+   ```
+
+4. **Запустите playbook:**
+   ```bash
+   ansible-playbook playbook.yml
+   ```
+
+### Альтернативный способ (старый):
+
 1. Скопируйте `inventory.example.yml` в `inventory.yml`
 2. Обновите IP адрес и пользователя в `inventory.yml`
 3. Проверьте подключение: `./check_connection.sh`
 4. Запустите: `ansible-playbook playbook.yml`
+
+**⚠️ Внимание:** `inventory.yml` добавлен в `.gitignore` для безопасности. Используйте переменные окружения вместо хардкода паролей. Подробнее: [README-INVENTORY.md](README-INVENTORY.md)
 
 ## Автоматическое развертывание через GitLab CI/CD
 

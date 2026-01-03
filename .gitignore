@@ -1,0 +1,23 @@
+# Ansible
+inventory.yml
+*.retry
+.ansible/
+
+# SSH keys
+*.pem
+*.key
+id_rsa
+id_ed25519
+
+# CI/CD
+inventory.ci.yml
+ansible.ci.cfg
+
+# Temporary files
+*.tmp
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
